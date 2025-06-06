@@ -26,10 +26,16 @@ const App = () => {
     const renderFrontpage = () => 
       <div>
         <h2>Blogs</h2>
-        <div>
           <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
+        <h2>Create new blog</h2>
+          <form onSubmit={handleFormSubmission}>
+            Title: <input type="text" name='title'></input><br />
+            Author: <input type="text" name='author'></input><br />
+            URL: <input type="text" name='url'></input><br />
+            <button type="submit">Create</button>
+          </form>
+        <h2>Existing blogs</h2>
           <BlogList blogs={blogs}/>
-        </div>
       </div>
   
 
@@ -42,7 +48,9 @@ const App = () => {
   useEffect(() => {
     const loggedInUser = window.localStorage.getItem("bloglistUser")
     if (loggedInUser) {
-      setUser(JSON.parse(loggedInUser))
+      const parsedUser = JSON.parse(loggedInUser)
+      blogService.setToken(parsedUser.token)
+      setUser(parsedUser)
     }
   }, [])
 
@@ -52,6 +60,7 @@ const App = () => {
     try {
       const user = await loginService.login({username, password})
       window.localStorage.setItem('bloglistUser', JSON.stringify(user))
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -64,6 +73,20 @@ const App = () => {
     event.preventDefault()
     window.localStorage.removeItem('bloglistUser')
     window.location.reload()
+  }
+
+  const handleFormSubmission = async (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.target)
+    const formDataObject = Object.fromEntries(formData.entries())
+
+    try {
+      const response = await blogService.createBlog(formDataObject)
+      const newBlogs = await blogService.getAll()
+      setBlogs(newBlogs)
+    } catch (error) {
+      console.log(`An error occured while creating a blog: ${error}`)
+    }
   }
 
   return (
