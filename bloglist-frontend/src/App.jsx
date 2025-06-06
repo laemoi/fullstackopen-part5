@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import BlogList from './components/BlogList'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -8,10 +9,13 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [notificationType, setNotificationType] = useState('success')
 
   const renderLoginForm = () =>
     <div>
       <h2>Log in to the application</h2>
+      <Notification message={notification} type={notificationType} />
       <form onSubmit={handleLogin}>
         <div>
           Username: <input type="text" name="Username" value={username} onChange={(event) => setUsername(event.target.value)}></input>
@@ -26,7 +30,8 @@ const App = () => {
     const renderFrontpage = () => 
       <div>
         <h2>Blogs</h2>
-          <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
+        <Notification message={notification} type={notificationType} />
+        <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
         <h2>Create new blog</h2>
           <form onSubmit={handleFormSubmission}>
             Title: <input type="text" name='title'></input><br />
@@ -65,7 +70,12 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (error) {
-      console.log(`An error occured while logging in: ${error}`)
+      setNotificationType('error')
+      setNotification('Wrong username or password')
+      setTimeout(() => {
+        setNotificationType('success')
+        setNotification(null)
+      }, 5000)
     }
   }
 
@@ -84,8 +94,17 @@ const App = () => {
       const response = await blogService.createBlog(formDataObject)
       const newBlogs = await blogService.getAll()
       setBlogs(newBlogs)
+      setNotification(`A new blog "${formDataObject.title}" by ${formDataObject.author} was added`)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } catch (error) {
-      console.log(`An error occured while creating a blog: ${error}`)
+      setNotificationType('error')
+      setNotification(`An error occured when trying to create a new blog: ${error}`)
+      setTimeout(() => {
+        setNotificationType('success')
+        setNotification(null)
+      }, 5000)
     }
   }
 
