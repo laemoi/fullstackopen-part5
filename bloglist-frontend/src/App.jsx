@@ -22,6 +22,15 @@ const App = () => {
         <button type="submit">Login</button>  
       </form>
     </div>
+
+    const renderFrontpage = () => 
+      <div>
+        <h2>Blogs</h2>
+        <div>
+          <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
+          <BlogList blogs={blogs}/>
+        </div>
+      </div>
   
 
   useEffect(() => {
@@ -30,11 +39,19 @@ const App = () => {
     )  
   }, [])
 
+  useEffect(() => {
+    const loggedInUser = window.localStorage.getItem("bloglistUser")
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser))
+    }
+  }, [])
+
   const handleLogin = async (event) => {
     event.preventDefault()
 
     try {
       const user = await loginService.login({username, password})
+      window.localStorage.setItem('bloglistUser', JSON.stringify(user))
       setUser(user)
       setUsername('')
       setPassword('')
@@ -43,19 +60,15 @@ const App = () => {
     }
   }
 
+  const handleLogout = (event) => {
+    event.preventDefault()
+    window.localStorage.removeItem('bloglistUser')
+    window.location.reload()
+  }
+
   return (
     <div>
-      {user
-        ?
-          <div>
-            <h2>Blogs</h2>
-            <div>
-              <p>{user.name} is logged in.</p>
-              <BlogList blogs={blogs}/>
-            </div>
-          </div>
-        : renderLoginForm()
-      }
+      {user ? renderFrontpage() : renderLoginForm()}
     </div>
   )
 }
