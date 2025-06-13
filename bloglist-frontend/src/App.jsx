@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BlogList from './components/BlogList'
+import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -27,22 +29,7 @@ const App = () => {
       </form>
     </div>
 
-    const renderFrontpage = () => 
-      <div>
-        <h2>Blogs</h2>
-        <Notification message={notification} type={notificationType} />
-        <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
-        <h2>Create new blog</h2>
-          <form onSubmit={handleFormSubmission}>
-            Title: <input type="text" name='title'></input><br />
-            Author: <input type="text" name='author'></input><br />
-            URL: <input type="text" name='url'></input><br />
-            <button type="submit">Create</button>
-          </form>
-        <h2>Existing blogs</h2>
-          <BlogList blogs={blogs}/>
-      </div>
-  
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -85,20 +72,18 @@ const App = () => {
     window.location.reload()
   }
 
-  const handleFormSubmission = async (event) => {
-    event.preventDefault()
-    const formData = new FormData(event.target)
-    const formDataObject = Object.fromEntries(formData.entries())
-
+  const handleCreateBlog = async (blog) => {
     try {
-      const response = await blogService.createBlog(formDataObject)
+      blogFormRef.current.toggleVisibility()
+      const response = await blogService.createBlog(blog)
       const newBlogs = await blogService.getAll()
       setBlogs(newBlogs)
-      setNotification(`A new blog "${formDataObject.title}" by ${formDataObject.author} was added`)
+      setNotification(`A new blog "${blog.title}" by ${blog.author} was added`)
       setTimeout(() => {
         setNotification(null)
       }, 5000)
-    } catch (error) {
+    }
+    catch (error) {
       setNotificationType('error')
       setNotification(`An error occured when trying to create a new blog: ${error}`)
       setTimeout(() => {
@@ -110,7 +95,21 @@ const App = () => {
 
   return (
     <div>
-      {user ? renderFrontpage() : renderLoginForm()}
+      {user ?
+        <div>
+          <h2>Blogs</h2>
+          <Notification message={notification} type={notificationType} />
+          <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
+          
+          <Togglable buttonLabel={'Show blog creation form'} ref={blogFormRef}>
+            <BlogForm createBlog={handleCreateBlog}/>
+          </Togglable>
+  
+          <h2>Existing blogs</h2>
+            <BlogList blogs={blogs}/>
+        </div>
+        : renderLoginForm()
+      }
     </div>
   )
 }
