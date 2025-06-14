@@ -111,6 +111,30 @@ const App = () => {
     }
   }
 
+  const handleDeleteBlog = async (blogId) => {
+    const blogToDelete = blogs.find(b => b.id === blogId)
+    const confirm = window.confirm(`Remove blog "${blogToDelete.title}" by ${blogToDelete.author}?`)
+    if (confirm) {
+      try {
+        const response = await blogService.deleteBlog(blogId)
+        const newBlogs = await blogService.getAll()
+        setBlogs(newBlogs)
+        setNotification(`Blog "${blogToDelete.title}" by ${blogToDelete.author} was removed successfully`)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+      }
+      catch (error) {
+        setNotificationType('error')
+        setNotification(`An error occured when trying to remove a blog: ${error}`)
+        setTimeout(() => {
+          setNotificationType('success')
+          setNotification(null)
+        }, 5000)
+      }
+    }
+  }
+
   return (
     <div>
       {user ?
@@ -120,11 +144,11 @@ const App = () => {
           <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
           
           <Togglable buttonLabel={'Show blog creation form'} ref={blogFormRef}>
-            <BlogForm createBlog={handleCreateBlog}/>
+            <BlogForm createBlog={handleCreateBlog} />
           </Togglable>
   
           <h2>Existing blogs</h2>
-            <BlogList blogs={blogs} updateBlog={handleUpdateBlog}/>
+            <BlogList currentUser={user} blogs={blogs} updateBlog={handleUpdateBlog} deleteBlog={handleDeleteBlog} />
         </div>
         : renderLoginForm()
       }
