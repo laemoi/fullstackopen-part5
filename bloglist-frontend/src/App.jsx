@@ -32,10 +32,7 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(blogs => {
-      console.log(blogs)
-      setBlogs( blogs )
-    })  
+    blogService.getAll().then(blogs => setBlogs(blogs))  
   }, [])
 
   useEffect(() => {
@@ -94,6 +91,26 @@ const App = () => {
     }
   }
 
+  const handleUpdateBlog = async (updatedBlog) => {
+    try {
+      const response = await blogService.updateBlog(updatedBlog)
+      const newBlogs = await blogService.getAll()
+      setBlogs(newBlogs)
+      setNotification(`Blog "${updatedBlog.title}" by ${updatedBlog.author} was updated successfully`)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
+    catch (error) {
+      setNotificationType('error')
+      setNotification(`An error occured when trying to update a blog: ${error}`)
+      setTimeout(() => {
+        setNotificationType('success')
+        setNotification(null)
+      }, 5000)
+    }
+  }
+
   return (
     <div>
       {user ?
@@ -107,7 +124,7 @@ const App = () => {
           </Togglable>
   
           <h2>Existing blogs</h2>
-            <BlogList blogs={blogs}/>
+            <BlogList blogs={blogs} updateBlog={handleUpdateBlog}/>
         </div>
         : renderLoginForm()
       }

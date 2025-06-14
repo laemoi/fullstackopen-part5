@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
+  const [internalBlog, setInternalBlog] = useState(blog)
   const [showDetails, setShowDetails] = useState(false)
 
   const blogStyle = {
@@ -13,20 +14,29 @@ const Blog = ({ blog }) => {
   const toggleDetails = () => {
     setShowDetails(!showDetails)
   }
+
+  const likeBlog = () => {
+    const updatedBlog = {
+      ...internalBlog,
+      likes: internalBlog.likes + 1
+    }
+    setInternalBlog(updatedBlog)
+    updateBlog(updatedBlog)
+  }
   
   return (
     <div>
       {showDetails
         ?
           <div style={blogStyle}>
-            {blog.title} <button onClick={toggleDetails}>Hide details</button><br />
-            {blog.url}<br />
-            {blog.likes} <button>Like</button><br />
-            {blog.author}<br />
+            {internalBlog.title} <button onClick={toggleDetails}>Hide details</button><br />
+            {internalBlog.url}<br />
+            {internalBlog.likes} <button onClick={likeBlog}>Like</button><br />
+            {internalBlog.author}<br />
           </div>
         :
           <div style={blogStyle}>
-            {blog.title} {blog.author} <button onClick={toggleDetails}>Show details</button>
+            {internalBlog.title} {internalBlog.author} <button onClick={toggleDetails}>Show details</button>
           </div>  
       }
     </div>
