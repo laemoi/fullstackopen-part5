@@ -55,7 +55,7 @@ module.exports = {
     'max-len': 'off',
     'no-return-assign': 'off',
     'react/forbid-prop-types': 'off',
-    'import/no-extraneous-dependencies': [2, { 'packageDir': './' }]
+    'import/no-extraneous-dependencies': [2, { 'packageDir': __dirname, 'devDependencies': true }]
   },
   settings: {
     react: {

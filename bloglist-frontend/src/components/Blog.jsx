@@ -33,7 +33,7 @@ const Blog = ({ currentUser, blog, updateBlog, deleteBlog }) => {
     <div>
       {showDetails
         ?
-          <div style={blogStyle}>
+          <div style={blogStyle} className='blog-details'>
             {internalBlog.title} <button type='button' onClick={toggleDetails}>Hide details</button><br />
             {internalBlog.url}<br />
             {internalBlog.likes} <button type='button' onClick={likeBlog}>Like</button><br />
