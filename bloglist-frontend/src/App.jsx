@@ -75,7 +75,7 @@ const App = () => {
   const handleCreateBlog = async (blog) => {
     try {
       blogFormRef.current.toggleVisibility()
-      const response = await blogService.createBlog(blog)
+      await blogService.createBlog(blog)
       const newBlogs = await blogService.getAll()
       setBlogs(newBlogs)
       setNotification(`A new blog "${blog.title}" by ${blog.author} was added`)
@@ -95,7 +95,7 @@ const App = () => {
 
   const handleUpdateBlog = async (updatedBlog) => {
     try {
-      const response = await blogService.updateBlog(updatedBlog)
+      await blogService.updateBlog(updatedBlog)
       const newBlogs = await blogService.getAll()
       setBlogs(newBlogs)
       setNotification(`Blog "${updatedBlog.title}" by ${updatedBlog.author} was updated successfully`)
@@ -118,7 +118,7 @@ const App = () => {
     const confirm = window.confirm(`Remove blog "${blogToDelete.title}" by ${blogToDelete.author}?`)
     if (confirm) {
       try {
-        const response = await blogService.deleteBlog(blogId)
+        await blogService.deleteBlog(blogId)
         const newBlogs = await blogService.getAll()
         setBlogs(newBlogs)
         setNotification(`Blog "${blogToDelete.title}" by ${blogToDelete.author} was removed successfully`)
