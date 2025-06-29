@@ -2,6 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
+    'vitest-globals/env': true
   },
   extends: [
     'airbnb',                  // Airbnb base rules for JS + React
@@ -11,6 +12,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/react',
+    'plugin:vitest-globals/recommended'
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -52,7 +54,8 @@ module.exports = {
     'object-curly-newline': [2, { 'ObjectPattern': 'never' }],
     'max-len': 'off',
     'no-return-assign': 'off',
-    'react/forbid-prop-types': 'off'
+    'react/forbid-prop-types': 'off',
+    'import/no-extraneous-dependencies': [2, { 'packageDir': './' }]
   },
   settings: {
     react: {

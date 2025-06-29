@@ -43,7 +43,7 @@ const Blog = ({ currentUser, blog, updateBlog, deleteBlog }) => {
             }
           </div>
         :
-          <div style={blogStyle}>
+          <div style={blogStyle} className='blog-overview'>
             {internalBlog.title} {internalBlog.author} <button type='button' onClick={toggleDetails}>Show details</button>
           </div>
       }
