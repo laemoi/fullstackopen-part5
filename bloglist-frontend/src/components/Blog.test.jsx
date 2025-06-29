@@ -48,3 +48,22 @@ test('Blog details are shown after \'Show details\' button has been clicked ', a
   expect(div).toHaveTextContent(`${blogObject.url}`)
   expect(div).toHaveTextContent(`${blogObject.likes}`)
 })
+
+test('When like button gets clicked twice, event handler has been called twice', async () => {
+  render(<Blog
+    currentUser={mockUser}
+    blog={blogObject}
+    updateBlog={updateBlog}
+    deleteBlog={deleteBlog}
+  />)
+
+  const user = userEvent.setup()
+  const showDetailsButton = screen.getByText('Show details')
+  await user.click(showDetailsButton)
+
+  const likeButton = screen.getByText('Like')
+  await user.click(likeButton)
+  await user.click(likeButton)
+
+  expect(updateBlog.mock.calls).toHaveLength(2)
+})
