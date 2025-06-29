@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PropTypes } from 'prop-types'
 
 const Blog = ({ currentUser, blog, updateBlog, deleteBlog }) => {
   const [internalBlog, setInternalBlog] = useState(blog)
@@ -33,21 +34,28 @@ const Blog = ({ currentUser, blog, updateBlog, deleteBlog }) => {
       {showDetails
         ?
           <div style={blogStyle}>
-            {internalBlog.title} <button onClick={toggleDetails}>Hide details</button><br />
+            {internalBlog.title} <button type='button' onClick={toggleDetails}>Hide details</button><br />
             {internalBlog.url}<br />
-            {internalBlog.likes} <button onClick={likeBlog}>Like</button><br />
+            {internalBlog.likes} <button type='button' onClick={likeBlog}>Like</button><br />
             {internalBlog.author}<br />
             {currentUser.username === internalBlog.user.username &&
-              <button onClick={removeBlog}>Remove</button>
+              <button type='button' onClick={removeBlog}>Remove</button>
             }
           </div>
         :
           <div style={blogStyle}>
-            {internalBlog.title} {internalBlog.author} <button onClick={toggleDetails}>Show details</button>
-          </div>  
+            {internalBlog.title} {internalBlog.author} <button type='button' onClick={toggleDetails}>Show details</button>
+          </div>
       }
     </div>
   )
+}
+
+Blog.propTypes = {
+  currentUser: PropTypes.object.isRequired,
+  blog: PropTypes.object.isRequired,
+  updateBlog: PropTypes.func.isRequired,
+  deleteBlog: PropTypes.func.isRequired
 }
 
 export default Blog

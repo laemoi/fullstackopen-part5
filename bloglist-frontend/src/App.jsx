@@ -14,29 +14,30 @@ const App = () => {
   const [notification, setNotification] = useState(null)
   const [notificationType, setNotificationType] = useState('success')
 
-  const renderLoginForm = () =>
+  const renderLoginForm = () => (
     <div>
       <h2>Log in to the application</h2>
       <Notification message={notification} type={notificationType} />
       <form onSubmit={handleLogin}>
         <div>
-          Username: <input type="text" name="Username" value={username} onChange={(event) => setUsername(event.target.value)}></input>
+          Username: <input type='text' name='Username' value={username} onChange={event => setUsername(event.target.value)} />
         </div>
         <div>
-          Password: <input type="password" name="Password" value={password} onChange={(event) => setPassword(event.target.value)}></input>
+          Password: <input type='password' name='Password' value={password} onChange={event => setPassword(event.target.value)} />
         </div>
-        <button type="submit">Login</button>  
+        <button type='submit'>Login</button>
       </form>
     </div>
+  )
 
   const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(blogs => setBlogs( blogs))  
+    blogService.getAll().then(blogs => setBlogs(blogs))
   }, [])
 
   useEffect(() => {
-    const loggedInUser = window.localStorage.getItem("bloglistUser")
+    const loggedInUser = window.localStorage.getItem('bloglistUser')
     if (loggedInUser) {
       const parsedUser = JSON.parse(loggedInUser)
       blogService.setToken(parsedUser.token)
@@ -48,13 +49,14 @@ const App = () => {
     event.preventDefault()
 
     try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
       window.localStorage.setItem('bloglistUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
-    } catch (error) {
+    }
+    catch (error) {
       setNotificationType('error')
       setNotification('Wrong username or password')
       setTimeout(() => {
@@ -137,19 +139,25 @@ const App = () => {
 
   return (
     <div>
-      {user ?
-        <div>
-          <h2>Blogs</h2>
-          <Notification message={notification} type={notificationType} />
-          <p>{user.name} is logged in. <button onClick={handleLogout}>Logout</button> </p>
-          
-          <Togglable buttonLabel={'Show blog creation form'} ref={blogFormRef}>
-            <BlogForm createBlog={handleCreateBlog} />
-          </Togglable>
-  
-          <h2>Existing blogs</h2>
-            <BlogList currentUser={user} blogs={blogs} updateBlog={handleUpdateBlog} deleteBlog={handleDeleteBlog} />
-        </div>
+      {user
+        ?
+          <div>
+            <h2>Blogs</h2>
+            <Notification message={notification} type={notificationType} />
+            <p>{user.name} is logged in. <button type='button' onClick={handleLogout}>Logout</button> </p>
+            
+            <Togglable buttonLabel={'Show blog creation form'} ref={blogFormRef}>
+              <BlogForm createBlog={handleCreateBlog} />
+            </Togglable>
+    
+            <h2>Existing blogs</h2>
+            <BlogList
+              currentUser={user}
+              blogs={blogs}
+              updateBlog={handleUpdateBlog}
+              deleteBlog={handleDeleteBlog}
+            />
+          </div>
         : renderLoginForm()
       }
     </div>
