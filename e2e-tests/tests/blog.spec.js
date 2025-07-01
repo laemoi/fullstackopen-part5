@@ -1,4 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { loginWith, createBlog } = require('./helpers')
 
 const testUser =
   {
@@ -6,6 +7,12 @@ const testUser =
     username: 'e2e-test-user',
     password: 'e2e_secret_password'
   }
+
+const testBlog = {
+  title: 'Playwright E2E test blog',
+  autor: 'Playwrigth engine',
+  url: 'playwright.dev'
+}
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -24,28 +31,31 @@ describe('Blog app', () => {
 
   describe('Login...', () => {
     test('Succeeds with correct credentials', async ({ page }) => {
-      const userNameInput = page.locator('input[name="Username"]')
-      const passwordInput = page.locator('input[name="Password"]')
-      const loginButton = page.getByRole('button', { name: 'Login' })
-
-      await userNameInput.fill(testUser.username)
-      await passwordInput.fill(testUser.password)
-      await loginButton.click()
+      await loginWith(page, testUser.username, testUser.password)
       
       await expect(page.getByText(`${testUser.name} is logged in.`)).toBeVisible()
     })
 
     test('Fails with wrong credentials', async ({ page }) => {
-      const userNameInput = page.locator('input[name="Username"]')
-      const passwordInput = page.locator('input[name="Password"]')
-      const loginButton = page.getByRole('button', { name: 'Login' })
-
-      await userNameInput.fill('wrong-username')
-      await passwordInput.fill('wrong-password')
-      await loginButton.click()
+      await loginWith(page, 'wrong-username', 'wrong-password')
 
       const errorDiv = page.locator('.error')
       await expect(errorDiv).toContainText('Wrong username or password')
     })
   })
+
+  describe('When logged in...', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, testUser.username, testUser.password)
+      await page.getByText('Show blog creation form').click()
+    })
+
+    test('A new blog can be created', async ({ page }) => {
+      await createBlog(page, testBlog.title, testBlog.autor, testBlog.url)
+
+      await expect(page.locator('.blog-overview')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('button', { name: 'Show details' })).toBeVisible({ timeout: 10000 })
+    })
+  })
+
 })
