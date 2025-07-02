@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helpers')
+const { loginWith, createBlog, deleteCreatedBlog } = require('./helpers')
 
 const testUser =
   {
@@ -64,6 +64,14 @@ describe('Blog app', () => {
 
       await expect(page.locator('.blog-details')).toBeVisible()
       await expect(page.getByText('1')).toBeVisible()
+    })
+
+    test('A blog can be deleted', async ({ page }) => {
+      await createBlog(page, testBlog.title, testBlog.autor, testBlog.url)
+      await deleteCreatedBlog(page)
+
+      await expect(page.locator('.blog-overview')).not.toBeVisible()
+      await expect(page.locator('.blog-details')).not.toBeVisible()
     })
   })
 
