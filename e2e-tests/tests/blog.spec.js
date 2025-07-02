@@ -16,8 +16,8 @@ const testBlog = {
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
-    request.post('http://localhost:5173/api/testing/reset')
-    request.post('http://localhost:5173/api/users', { data: testUser })
+    await request.post('http://localhost:5173/api/testing/reset')
+    await request.post('http://localhost:5173/api/users', { data: testUser })
     await page.goto('http://localhost:5173')
   })
 
@@ -55,6 +55,15 @@ describe('Blog app', () => {
 
       await expect(page.locator('.blog-overview')).toBeVisible({ timeout: 10000 })
       await expect(page.getByRole('button', { name: 'Show details' })).toBeVisible({ timeout: 10000 })
+    })
+
+    test('A blog can be liked', async ({ page }) => {
+      await createBlog(page, testBlog.title, testBlog.autor, testBlog.url)
+      await page.getByRole('button', { name: 'Show details' }).click()
+      await page.getByRole('button', { name: 'Like' }).click()
+
+      await expect(page.locator('.blog-details')).toBeVisible()
+      await expect(page.getByText('1')).toBeVisible()
     })
   })
 
