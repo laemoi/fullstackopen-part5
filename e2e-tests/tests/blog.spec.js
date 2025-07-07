@@ -21,6 +21,24 @@ const testBlog = {
   url: 'playwright.dev'
 }
 
+const mostLikesBlog = {
+  title: 'Best blog',
+  author: 'Famous author',
+  url: 'best.com'
+}
+
+const averageLikesBlog = {
+  title: 'Ok blog',
+  author: 'Normal author',
+  url: 'alright.com'
+}
+
+const leastLikesBlog = {
+  title: 'Boring blog',
+  author: 'Unknown author',
+  url: 'lame.com'
+}
+
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('http://localhost:5173/api/testing/reset')
@@ -88,6 +106,50 @@ describe('Blog app', () => {
       await page.getByRole('button', { name: 'Show details' }).click()
 
       await expect(page.getByRole('button', { name: 'Remove' })).not.toBeVisible()
+    })
+
+    test('Blogs are sorted by likes, in descending order', async ({ page, request }) => {
+      await createBlog(page, leastLikesBlog.title, leastLikesBlog.author, leastLikesBlog.url)
+      await page.getByText('Show blog creation form').click()
+      await createBlog(page, mostLikesBlog.title, mostLikesBlog.author, mostLikesBlog.url)
+      await page.getByText('Show blog creation form').click()
+      await createBlog(page, averageLikesBlog.title, averageLikesBlog.author, averageLikesBlog.url)
+      await page.waitForResponse((response) => response.url().includes('/api/blogs'))
+      
+      const blogOverviewDivs = page.locator('.blog-overview')
+      await expect(blogOverviewDivs).toHaveCount(3)
+
+      for (let i = 0; i < 3; i++) {
+        /*
+          Since blogDivs changes dynamically when 'Show details' is clicked, we can always access
+          the first element of the the locator array. Since this locator array changes when
+          'Show details' is clicked, we _must not_ use index-based access here, e.g. with .nth(i).
+        */
+        const currentBlogDiv = blogOverviewDivs.first()
+        await expect(currentBlogDiv).toBeVisible()
+        await currentBlogDiv.getByRole('button', { name: 'Show details' }).click()
+      }
+
+      const blogDetailDivs = page.locator('.blog-details')
+
+      const mostLikesDiv = blogDetailDivs.getByText(mostLikesBlog.title)
+      for (let i = 0; i < 5; i++) {
+        await mostLikesDiv.getByRole('button', { name: 'Like' }).click()
+      }
+      
+      const averageLikesDiv = blogDetailDivs.getByText(averageLikesBlog.title)
+      for (let i = 0; i < 3; i++) {
+        await averageLikesDiv.getByRole('button', { name: 'Like' }).click()
+      }
+      
+      const leastLikesDiv = blogDetailDivs.getByText(leastLikesBlog.title)
+      for (let i = 0; i < 1; i++) {
+        await leastLikesDiv.getByRole('button', { name: 'Like' }).click()
+      }
+
+      await expect(blogDetailDivs.nth(0)).toContainText('5')
+      await expect(blogDetailDivs.nth(1)).toContainText('3')
+      await expect(blogDetailDivs.nth(2)).toContainText('1')
     })
   })
 
